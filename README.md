@@ -27,17 +27,7 @@ $ npm run dev
 ```
 
 
-## YouTube 📺
 
-https://youtube.com/@mafiacodes
-
-## Donations 💰
-
-https://paypal.me/trulymittal
-
-## License 🎫
-
-[MIT](LICENSE)
 
 ## Contribute 🤝
 
