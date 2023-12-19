@@ -26,9 +26,6 @@ $ npm i --workspaces
 $ npm run dev
 ```
 
-## Author ✍️
-
-[**Truly Mittal 🇮🇳**](https://trulymittal.com)
 
 ## YouTube 📺
 

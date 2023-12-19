@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev ./src/main.ts",
+    "dev2": "npx nodemon ./src/main.ts",
     "start": "node ./build/main.js"
   },
   "keywords": [],
