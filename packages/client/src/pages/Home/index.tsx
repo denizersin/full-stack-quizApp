@@ -1,13 +1,66 @@
 import { Button, buttonVariants } from '@/components/ui/button';
-import React from 'react'
+import { trpc } from '@/lib/trpc';
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 
+import { Play } from 'lucide-react';
+import { ProgressIndicator } from '@radix-ui/react-progress';
+import { QuestionTypeEnum } from '@/lib/constants';
+
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import QuizCard from './QuizCard';
+import { useQueryClient } from '@tanstack/react-query';
+import { getQueryKey } from '@trpc/react-query';
 interface IHomeProps {
     children?: React.ReactNode | React.ReactNode[];
 }
 
 const Home = ({ }: IHomeProps) => {
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+    const [idWillDelete, setIdWillDelete] = useState(-1)
 
+    const { data } = trpc.quiz.getQuizes.useQuery()
+
+    const queryClient = useQueryClient();
+
+    const navigate = useNavigate()
+
+    const { mutateAsync: deleteQuiz } = trpc.quiz.deleteQuiz.useMutation({
+        onSuccess: () => {
+            queryClient.invalidateQueries(getQueryKey(trpc.quiz.getQuizes))
+            setIdWillDelete(-1);
+            setIsDeleteDialogOpen(false)
+        }
+    })
+
+    const onDelteQuiz = (id: number) => {
+        setIsDeleteDialogOpen(true)
+        setIdWillDelete(id)
+    }
+    const onEditQuiz = (id: number) => {
+        navigate(`/quiz/edit/${id}`)
+    }
+
+    console.log(data);
 
 
     return (
@@ -18,6 +71,48 @@ const Home = ({ }: IHomeProps) => {
                     className={buttonVariants()}
                 >Create Quiz</Link>
             </div>
+
+            <div className='quizes flex gap-4 flex-wrap mt-4'>
+                {
+                    data?.map((quiz) => {
+                        return (
+                            <QuizCard
+                                title={quiz.title}
+                                id={quiz.id}
+                                count={quiz.questionCount}
+                                type={quiz.type}
+                                successRate={quiz.successRate}
+                                takenCount={quiz.takenCount}
+                                onDelete={onDelteQuiz}
+                                onEdit={onEditQuiz}
+                            />
+                        )
+                    })
+                }
+            </div>
+
+
+            {/* Modals */}
+            <AlertDialog
+                open={isDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete your quiz
+                            and remove your data from our servers.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                        >Cancel</AlertDialogCancel>
+                        <Button
+                            onClick={() => deleteQuiz({ id: idWillDelete })}
+                            variant={'destructive'}>Delete</Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

@@ -4,7 +4,7 @@ import React from 'react'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-
+import { Calendar as CalendarIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -15,8 +15,16 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
+import { cn } from "@/lib/utils"
+import { Calendar } from "@/components/ui/calendar"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
 import { trpc } from '@/lib/trpc'
+import { useNavigate } from 'react-router-dom'
 
 const formSchema = z.object({
     email: z.string().min(2, {
@@ -28,13 +36,22 @@ const formSchema = z.object({
     name: z.string().min(2, {
         message: "Name must be at least 2 characters.",
     }),
+    surname: z.string().min(2, {
+        message: "Surname must be at least 2 characters.",
+    }),
+    birthDate: z.date(),
+    identityNumber: z.string().min(11, {
+        message: "Identity Number must be at least 11 characters.",
+    },).max(11, { message: "Identity Number must be at most 11 characters." }),
+
+
 })
 interface IRegisterProps {
     children?: React.ReactNode | React.ReactNode[];
 }
 export function Register({ }: IRegisterProps) {
     // ...
-
+    const navigate = useNavigate();
     const registerMutation = trpc.auth.register.useMutation({
         onSuccess: () => {
 
@@ -51,6 +68,8 @@ export function Register({ }: IRegisterProps) {
             email: "",
             password: "",
             name: "",
+            surname: "",
+            identityNumber: ""
 
         },
     })
@@ -67,7 +86,7 @@ export function Register({ }: IRegisterProps) {
     return (
         <div className=' w-full  flex items-center justify-center p-2 md:p-6 '>
 
-            <div className=' w-[400px] mt-20 shadow-md p-6'>
+            <div className=' w-[500px] mt-20 shadow-md p-8 py-10 '>
                 {
 
                 }
@@ -78,9 +97,74 @@ export function Register({ }: IRegisterProps) {
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Username</FormLabel>
+                                    <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="shadcn" {...field} />
+                                        <Input placeholder="Name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="surname"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Surname</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Surname" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="birthDate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className='block mb-2'>Birth Date</FormLabel>
+                                    <FormControl>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-[280px] justify-start text-left font-normal",
+                                                        // !date && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {form.getValues('birthDate') ? form.getValues('birthDate').toLocaleDateString() : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-full p-0">
+                                                <Calendar
+                                                    className='w-full'
+                                                    {...field}
+                                                    mode="single"
+                                                    onSelect={(e) => {
+                                                        field.onChange(e)
+                                                    }}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="identityNumber"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Identity Number</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Iidentity Number" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

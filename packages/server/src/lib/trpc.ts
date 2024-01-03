@@ -4,14 +4,22 @@ import { UserModel } from '../model/UserModel';
 import { AuthModel } from '../model/AuthModel';
 import { setCookie } from './utils/session';
 import cookie, { CookieSerializeOptions } from 'cookie'
+import { QuizSetModel } from '@/model/QuizSetModel';
+import jwt from 'jsonwebtoken'
+import { TUser } from '..';
+import { QuizModel } from '@/model/QuizModel';
 
 
-const Models: {
+export const Models: {
   UserModel: UserModel,
-  AuthModel: AuthModel
+  AuthModel: AuthModel,
+  QuizSetModel: QuizSetModel,
+  QuizModel: QuizModel
 } = {
   UserModel: new UserModel(),
-  AuthModel: new AuthModel()
+  AuthModel: new AuthModel(),
+  QuizSetModel: new QuizSetModel(),
+  QuizModel: new QuizModel()
 }
 
 
@@ -42,12 +50,12 @@ export const createTrpcRouter = trpc.router;
 const middleware = trpc.middleware
 
 export const isAuth = middleware(async ({
-  ctx, next,...props
+  ctx, next, ...props
 }) => {
   const { req, res } = ctx
   const cookies = cookie.parse(req.headers.cookie ?? '')
 
-  console.log(cookies['refresh-token'])
+  // console.log(cookies['refresh-token'])
 
   const authToken = cookies['refresh-token']
 
@@ -57,12 +65,28 @@ export const isAuth = middleware(async ({
       message: 'You are not authorized',
     })
   }
+
+  //@ts-ignore
+  const payload = jwt.verify(authToken, process.env.JWT_REFRESH_SECRET);
+
+  const savedRefreshToken = await Models.AuthModel.findRefreshTokenById(payload.jti!);
+
+  const user = await Models.UserModel.findUserById(payload.userId);
+
+  if (!user) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'You are not authorized',
+    })
+  }
+
   return next({
     ctx: {
-      ...ctx,...props
+      ...ctx, ...props,
+      user
     },
   });
 })
 export const protectedProcedure = trpc.procedure.use(isAuth)
 export const publicProcedure = trpc.procedure
-export {trpc}
+export { trpc }

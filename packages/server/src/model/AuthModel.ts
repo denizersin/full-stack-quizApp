@@ -1,6 +1,10 @@
-import { prisma } from '@/lib/prismaClient'
 
 import { hashToken } from '@/lib/utils/hashToken'
+
+import { prisma } from '@/lib/prismaClient';
+import { Prisma } from '@prisma/client';
+
+
 
 // used when we create a refresh token.
 export class AuthModel {

@@ -1,13 +1,15 @@
 import { TRPCError } from '@trpc/server'
 import { createTrpcRouter, trpc } from '../lib/trpc'
-import { todoRouter } from './todoRouter'
 import cookie, { CookieSerializeOptions } from 'cookie'
 import { authRouter } from './authRouter'
+import { quizSetRouter } from './quizSetRouter'
+import { quizRouter } from './quiz'
 
 
 export const appRouter = createTrpcRouter({
-  todo: todoRouter,
-  auth:authRouter
+  auth: authRouter,
+  quizSet: quizSetRouter,
+  quiz: quizRouter
 })
 
 

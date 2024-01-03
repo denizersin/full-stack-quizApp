@@ -1,7 +1,7 @@
 //@ts-nocheck
 
 import jwt from 'jsonwebtoken';
-import { TUser } from '../../model/types/user/user';
+import { TUser } from '../../model/types/user';
 
 
 

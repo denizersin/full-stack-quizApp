@@ -50,7 +50,7 @@ const SideBar = ({ }: ISideBarProps) => {
                 className={cn(`h-full  max-w-[${MAX_SIDEBAR_WIDTH}rem] relative transition-all`)} >
 
                 <div className='sections-container h-full flex flex-col pr-2 gap-2'>
-                    <Card className='w-full border-[.2px] shadow-none '>
+                    <Card className='w-full  shadow-none dark:border-slate-600'>
                         <CardHeader>
                             <CardTitle className='font-normal'>
                                 <NavLink to='/'
@@ -89,7 +89,7 @@ const SideBar = ({ }: ISideBarProps) => {
 
                     </Card>
 
-                    <Card className='w-full h-full overflow-hidden shadow-none '>
+                    <Card className='w-full h-full overflow-hidden shadow-none dark:border-slate-600'>
                         <CardContent className='h-full pr-0'>
                             <SideLibrary />
                         </CardContent>

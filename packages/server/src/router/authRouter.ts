@@ -11,6 +11,7 @@ import cookie from 'cookie'
 const protected2 = trpc.procedure.use(isAuth)
 
 export const authRouter = createTrpcRouter({
+
     register: trpc.procedure
         .input(createUserReqSchema)
         .mutation(async ({ ctx, input }) => {
@@ -36,6 +37,7 @@ export const authRouter = createTrpcRouter({
                 httpOnly: true, secure: true, sameSite: 'none',
                 maxAge: 1000 * 60 * 60 * 8 // 8 hours
             })
+            
             return user
 
         })
@@ -83,11 +85,11 @@ export const authRouter = createTrpcRouter({
                 Models: { UserModel, AuthModel },
             } = ctx
 
-            console.log('GET SESSION');
+            // console.log('GET SESSION');
 
             const cookies = cookie.parse(ctx.req.headers.cookie ?? '')
             const authToken = cookies['refresh-token']
-            console.log(authToken,);
+            // console.log(authToken,);
 
             if (!authToken) return null
 

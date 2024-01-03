@@ -48,6 +48,8 @@ export function Login({ }: ILoginProps) {
 
     const { mutateAsync: login, data, isLoading } = loginMutation;
 
+    
+
     console.log(data);
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -63,13 +65,14 @@ export function Login({ }: ILoginProps) {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
         console.log(values)
+
         login(values)
 
     }
 
     return (
         <div className=' w-full  flex items-center justify-center p-2 md:p-6'>
-            <div className='w-[400px] mt-20 shadow-md p-6'>
+            <div className='w-[500px] mt-20 shadow-md p-8 py-10 border'>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 

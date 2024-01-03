@@ -18,6 +18,7 @@ export function useSession() {
 export function useLogOutMutation() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    
     const logOutMutation = trpc.auth.logOut.useMutation({
         onSuccess: () => {
 

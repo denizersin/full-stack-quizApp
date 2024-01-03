@@ -13,16 +13,24 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
+import { useToast } from "@/components/ui/use-toast"
+
 import { Input } from "@/components/ui/input"
 import { Textarea } from '@/components/ui/textarea'
+import MultiQuestionCard from '@/components/Question/MultiQuestionCard'
+import { trpc } from '@/lib/trpc'
+import { useNavigate } from 'react-router-dom'
 
 const formSchema = z.object({
-    quizName: z.string().min(2, {
+    title: z.string().min(2, {
         message: "Username must be at least 2 characters.",
     }),
-    notes: z.string().min(100, {
+    notes: z.string().min(1, {
         message: "Username must be at least 100 characters.",
-    })
+    }),
+    questionCount: z.string().min(1, {
+        message: "Username must be at least 1 characters.",
+    }),
 })
 
 interface ICreateQuizProps {
@@ -30,19 +38,47 @@ interface ICreateQuizProps {
 }
 
 const CreateQuiz = ({ }: ICreateQuizProps) => {
+
+    const navigate = useNavigate();
+    const { toast } = useToast()
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            quizName: "",
+            title: "",
             notes: "",
+            questionCount: "5",
         },
     })
+
+
+    const { mutateAsync: createQuiz, data } = trpc.quiz.generateNewQuiz.useMutation({
+        onSuccess: (data) => {
+            console.log(data, 'data');
+            toast({
+                title: 'Quiz Generating...',
+                description: "Take a coffe while we generate your quiz!",
+            })
+            navigate(`/quiz/edit/${data?.id}`, { state: { quiz: data } })
+        }
+    })
+
+
+    console.log('******************');
+
+    console.log(data);
+
+    console.log('******************');
 
     // 2. Define a submit handler.
     function onSubmit(values: z.infer<typeof formSchema>) {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
-        console.log(values)
+
+        createQuiz({
+            ...values,
+            questionCount: parseInt(values.questionCount)
+        })
+
     }
 
     return (
@@ -52,10 +88,10 @@ const CreateQuiz = ({ }: ICreateQuizProps) => {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full max-w-[700px]">
                     <FormField
                         control={form.control}
-                        name="quizName"
+                        name="title"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>QuizName</FormLabel>
+                                <FormLabel>Title</FormLabel>
                                 <FormControl>
                                     <Input className='' placeholder="shadcn" {...field} />
                                 </FormControl>
@@ -66,6 +102,20 @@ const CreateQuiz = ({ }: ICreateQuizProps) => {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="questionCount"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Question Count</FormLabel>
+                                <FormControl>
+                                    <Input className='' placeholder="shadcn" {...field}  />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
                     <FormField
                         control={form.control}
                         name="notes"
@@ -90,6 +140,8 @@ const CreateQuiz = ({ }: ICreateQuizProps) => {
                     <Button type="submit">Create</Button>
                 </form>
             </Form>
+            <div className='pb-10'>
+            </div>
         </div>
     )
 }

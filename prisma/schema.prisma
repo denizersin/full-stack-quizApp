@@ -11,40 +11,121 @@ datasource db {
   // url      = "file:./dev.db.sqlite"
 }
 
-model Todo {
-  id          String   @id @default(cuid())
-  title       String
-  isCompleted Boolean
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-model User{
-  id          String   @id @default(cuid())
-  name        String
-  email       String   @unique
-  password    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  password      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   refreshTokens RefreshToken[]
-  sessions      Session[]
-  
+  quizzes       Quiz[]
+
+  quizSets QuizSet[]
+
+  @@index([id,email])
 }
 
 model RefreshToken {
   id          String   @id @unique @default(uuid())
   hashedToken String
   userId      String
-  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   revoked     Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([userId])
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Quiz {
+  id     Int          @id @default(autoincrement())
+  title  String
+  type   QuestionType
+  userId String
+
+  owner              User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  successRate        Float               @default(0)
+  takenCount         Int                 @default(0)
+  quizSet            QuizSet[]
+  questionCount      Int
+  fillInTheBlankQuiz FillInTheBlankQuiz?
+  multipleChoiceQuiz MultipleChoiceQuiz?
+
+  @@index([userId, title, type])
+}
+
+model FillInTheBlankQuiz {
+  id                      Int                      @id @default(autoincrement())
+  fillInTheBlankQuestions FillInTheBlankQuestion[]
+
+  quizId Int
+  quiz   Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([quizId])
+}
+
+model MultipleChoiceQuiz {
+  id                      Int                      @id @default(autoincrement())
+  MultipleChoiceQuestions MultipleChoiceQuestion[]
+
+  quizId Int
+  quiz   Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([quizId])
+}
+
+model FillInTheBlankQuestion {
+  id           Int                @id @default(autoincrement())
+  quiz         FillInTheBlankQuiz @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  answer       String
+  fillOptionId Int
+  option       FillOption         @relation(fields: [fillOptionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([fillOptionId])
+}
+
+model MultipleChoiceQuestion {
+  id                   Int                @id @default(autoincrement())
+  multipleChoiceQuizId Int
+  multipleChoiceQuiz   MultipleChoiceQuiz @relation(fields: [multipleChoiceQuizId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  question             String
+  optionsList          MultiOption[]      @relation("test")
+  @@index([multipleChoiceQuizId])
+}
+
+model MultiOption {
+  id                       Int                    @id @default(autoincrement())
+  multipleChoiceQuestionId Int
+  value                    String
+  question                 MultipleChoiceQuestion @relation("test", fields: [multipleChoiceQuestionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  opt_index                Int
+  isCorrect                Boolean                @default(false)
+  @@index([multipleChoiceQuestionId])
+}
+
+model FillOption {
+  id           Int                     @id @default(autoincrement())
+  value        String
+  fillOptionId Int
+  question     FillInTheBlankQuestion?
+  @@index([fillOptionId])
+}
+
+enum QuestionType {
+  FILL_IN_THE_BLANK
+  MULTIPLE_CHOICE
+}
+
+model QuizSet {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  quizzes     Quiz[]
+  userId      String
+  owner       User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId, title])
 }

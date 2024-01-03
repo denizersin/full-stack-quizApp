@@ -12,6 +12,8 @@ import OpenAI from "openai";
 console.log(process.env);
 
 const app: Application = express()
+
+
 app.use(cors({
   credentials: true,
   origin: 'http://localhost:5173'
@@ -22,11 +24,13 @@ app.use(cors({
 // })
 
 app.use(
+
   '/trpc',
   trpcExpress.createExpressMiddleware({
     router: appRouter,
     createContext: createContext,
   })
+  
 )
 
 const PORT: number = Number(process.env.PORT) || 3000

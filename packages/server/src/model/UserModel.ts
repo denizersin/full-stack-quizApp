@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prismaClient"
-import { TUser } from "./types/user/user"
+import { TUser } from "./types/user"
 import { TCreateUserReq } from "./validators/user/user"
 import bcrypt from "bcrypt"
 export class UserModel {
@@ -8,9 +8,10 @@ export class UserModel {
 
         return prisma.user.create({
             data: {
-                ...user,
-
-
+                // ...user,
+                email: user.email,
+                password: user.password,
+                name: user.name,
             }
         })
 
