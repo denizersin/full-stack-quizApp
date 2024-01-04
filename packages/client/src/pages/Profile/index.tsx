@@ -1,6 +1,4 @@
 import React from 'react'
-
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -22,37 +20,36 @@ import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/components/ui/use-toast'
 import { useQueryClient } from '@tanstack/react-query'
 import { getQueryKey } from '@trpc/react-query'
-
-const formSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(10, {
-        message: "Password must be at least 10 characters.",
-    }),
-    name: z.string().min(2, {
-        message: "Name must be at least 2 characters.",
-    }),
-    surname: z.string().min(2, {
-        message: "Surname must be at least 2 characters.",
-    }),
-    birthDate: z.string(),
-    identityNo: z.string().min(11, {
-        message: "Identity Number must be at least 11 characters.",
-    },).max(11, { message: "Identity Number must be at most 11 characters." }),
+import useUser, { useSession } from '@/Hooks/useAuth'
 
 
-})
-interface IRegisterProps {
+interface IProfileProps {
     children?: React.ReactNode | React.ReactNode[];
 }
-export function Register({ }: IRegisterProps) {
+export default function Profile({ }: IProfileProps) {
+
+    const session = useSession()
+    const user = session?.user
+
+    const formSchema = z.object({
+        email: z.string().email(),
+        password: z.string().min(10, {
+            message: "Password must be at least 10 characters.",
+        }),
+        name: z.string().optional(),
+        surname: z.string().optional(),
+        birthDate: z.string().optional(),
+        identityNo: z.string().optional(),
+    })
+
     // ...
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const registerMutation = trpc.auth.register.useMutation({
+    const updateUserMutation = trpc.quiz.updateUser.useMutation({
         onSuccess: () => {
             toast({
                 variant: "default",
-                title: "Successfully registered",
+                title: "Successfully Updated",
                 // action: <ToastAction altText="Try again">Try again</ToastAction>,
             })
             queryClient.invalidateQueries(getQueryKey(trpc.auth.getSession));
@@ -70,17 +67,18 @@ export function Register({ }: IRegisterProps) {
 
     const { toast } = useToast()
 
-    const { mutateAsync: register, data } = registerMutation;
+    const { mutateAsync: register, data } = updateUserMutation;
     console.log(data);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            email: "",
+            email: user?.email,
             password: "",
-            name: "",
-            surname: "",
-            identityNo: ""
+            name: user?.name,
+            surname: user?.surname,
+            identityNo: user?.identityNo,
+            birthDate: user?.birthDate
 
         },
     })
@@ -97,7 +95,7 @@ export function Register({ }: IRegisterProps) {
     return (
         <div className=' w-full  flex items-center justify-center p-2 md:p-6 '>
 
-            <div className=' w-[500px] mt-20 shadow-md p-8 py-10 '>
+            <div className=' w-[500px]  shadow-md p-8 py-10 '>
                 {
 
                 }
@@ -106,6 +104,7 @@ export function Register({ }: IRegisterProps) {
                         <FormField
                             control={form.control}
                             name="name"
+                            disabled={true}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
@@ -120,6 +119,8 @@ export function Register({ }: IRegisterProps) {
                         <FormField
                             control={form.control}
                             name="surname"
+                            disabled={true}
+
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Surname</FormLabel>
@@ -133,6 +134,8 @@ export function Register({ }: IRegisterProps) {
                         <FormField
                             control={form.control}
                             name="birthDate"
+                            disabled={true}
+
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Birth Year</FormLabel>
@@ -147,6 +150,8 @@ export function Register({ }: IRegisterProps) {
                         <FormField
                             control={form.control}
                             name="identityNo"
+                            disabled={true}
+
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Identity Number</FormLabel>
@@ -173,17 +178,20 @@ export function Register({ }: IRegisterProps) {
                         <FormField
                             control={form.control}
                             name="password"
+                            
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
-                                        <Input type='password' placeholder="shadcn" {...field} />
+                                        <Input
+                                        type='password'
+                                        placeholder="shadcn" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Submit</Button>
+                        <Button type="submit">Update</Button>
                     </form>
                 </Form>
             </div>

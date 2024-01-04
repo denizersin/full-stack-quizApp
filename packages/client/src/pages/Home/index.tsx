@@ -40,6 +40,11 @@ const Home = ({ }: IHomeProps) => {
 
     const { data } = trpc.quiz.getQuizes.useQuery()
 
+    const { data: recentQuizes } = trpc.quiz.getRecentQuiz.useQuery()
+
+    const { data: mostUnsuccesQuizes } = trpc.quiz.getMostUnsuccessfulQuiz.useQuery()
+
+
     const queryClient = useQueryClient();
 
     const navigate = useNavigate()
@@ -72,9 +77,11 @@ const Home = ({ }: IHomeProps) => {
                 >Create Quiz</Link>
             </div>
 
+            <h2 className='my-3 text-2xl'>Last Taken Quizes</h2>
+
             <div className='quizes flex gap-4 flex-wrap mt-4'>
                 {
-                    data?.map((quiz) => {
+                    recentQuizes?.map((quiz) => {
                         return (
                             <QuizCard
                                 title={quiz.title}
@@ -90,6 +97,30 @@ const Home = ({ }: IHomeProps) => {
                     })
                 }
             </div>
+
+            <h2 className='my-3 text-2xl text-red-400 dark:text-red-300'>Most Unsuccessful Quizes</h2>
+
+
+            <div className='quizes flex gap-4 flex-wrap mt-4'>
+                {
+                    mostUnsuccesQuizes?.map((quiz) => {
+                        return (
+                            <QuizCard
+                                title={quiz.title}
+                                id={quiz.id}
+                                count={quiz.questionCount}
+                                type={quiz.type}
+                                successRate={quiz.successRate}
+                                takenCount={quiz.takenCount}
+                                onDelete={onDelteQuiz}
+                                onEdit={onEditQuiz}
+                            />
+                        )
+                    })
+                }
+            </div>
+
+
 
 
             {/* Modals */}

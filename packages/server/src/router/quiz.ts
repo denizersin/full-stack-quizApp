@@ -4,6 +4,8 @@ import { Models, createTrpcRouter } from '../lib/trpc'
 import { protected2 } from './todoRouter'
 import { Prisma, QuizSet } from '@prisma/client'
 import { prisma } from '@/lib/prismaClient'
+import { updateUserReqSchema } from '@/model/validators/user/user'
+import { TUser } from '..'
 
 
 
@@ -52,14 +54,25 @@ export const quizRouter = createTrpcRouter({
 
     getQuizes: protected2.query(async ({ ctx, ...rest }) => {
         const { QuizSetModel } = ctx.Models
-        const data = await Models.QuizModel.getAllQuizes(ctx.user)
+        const data = await Models.QuizModel.getAllQuizes(ctx.user as TUser)
         return data as T2;
     }),
+
+    getRecentQuiz: protected2.query(async ({ ctx, ...rest }) => {
+        const data = await Models.QuizModel.getRecentQuizes(ctx.user as TUser)
+        return data as T2;
+    }),
+
+    getMostUnsuccessfulQuiz: protected2.query(async ({ ctx, ...rest }) => {
+        const data = await Models.QuizModel.getMostUnsuccessfulQuizes(ctx.user as TUser)
+        return data as T2;
+    }),
+
     paging: protected2
         .input(quizesPagingReqSchema)
         .query(async ({ ctx, ...rest }) => {
             const { QuizModel } = ctx.Models
-            const data = await QuizModel.quizesPaging(rest.input)
+            const data = await QuizModel.quizesPaging(rest.input, ctx.user)
             return data as {
                 quizes: T2,
                 next: T2[0] | null
@@ -117,5 +130,17 @@ export const quizRouter = createTrpcRouter({
         await QuizModel.deleteQuizById(rest.input.id);
         console.log(rest.input.id);
         return true
-    })
+    }),
+
+    updateUser: protected2.input(updateUserReqSchema).mutation(async ({ ctx, input }) => {
+        const {
+            Models: { UserModel, AuthModel },
+        } = ctx
+        const { email, password } = input
+        // const existingUser = await UserModel.findUserByEmail(email);
+
+        const updatedUser = await UserModel.updateUserById({ id: ctx.user.id, email, password });
+        return updatedUser
+    }
+    ),
 })

@@ -56,7 +56,8 @@ const QuizCardOnSet = ({
     isExistOnSet,
     mutationKey,
     quizSet,
-    onSucessAddOrRemove
+    onSucessAddOrRemove,
+
 }: IQuizCardOnSetProps) => {
     const navigate = useNavigate()
     const queryCLient = useQueryClient();
@@ -106,9 +107,9 @@ const QuizCardOnSet = ({
 
 
     return (
-        <Card className='w-64 border-slate-100 border-[.7px] rounded-xl'>
+        <Card className='w-64 dark:border-slate-100 dark:border-[.7px] '>
             <CardHeader className=" flex items-center flex-row justify-between">
-                <CardTitle className="">{title}</CardTitle>
+                <CardTitle className="h-8 flex items-center">{title}</CardTitle>
                 {isExistOnSet && (
                     <div className="w-12 h-12 flex justify-center items-center">
                         <Button
@@ -136,10 +137,10 @@ const QuizCardOnSet = ({
                         <div>
                             Taken:{takenCount}
                         </div>
-                        {/* {count&& <div>
+                        {count&& <div>
                             Questions:
                             {count}
-                        </div>} */}
+                        </div>}
                     </div>
                     <div className='w-max'>
                         <Button

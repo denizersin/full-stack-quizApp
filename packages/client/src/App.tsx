@@ -9,6 +9,7 @@ import { BrowserRouter } from 'react-router-dom';
 import TrpcProvider from './components/Providers/TrpcProvider'
 import SessionProvider from './components/Providers/SessionProvider'
 import { ThemeProvider } from './components/Providers/ThemeProvider'
+import { Toaster } from './components/ui/toaster'
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
           </ThemeProvider>
         </SessionProvider>
       </TrpcProvider>
+      <Toaster />
     </BrowserRouter>
 
   )

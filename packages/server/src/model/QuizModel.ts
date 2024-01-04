@@ -4,13 +4,16 @@ import { TUser } from './types';
 import { z } from 'zod';
 import { TQuizesPagingReq } from '@/router/quiz';
 import { quizesData } from '@/lib/createMockData';
+import { QuestionType } from '@prisma/client';
 
 
 
 
 export class QuizModel {
     getAllQuizes = async (user: TUser) => {
+
         const quizes = await prisma.quiz.findMany({
+            
             where: {
                 userId: user.id
             }
@@ -39,14 +42,94 @@ export class QuizModel {
         return quizes
     }
 
-    quizesPaging = async (data: TQuizesPagingReq) => {
+    getRecentQuizes = async (user: TUser) => {
+        const quizes = await prisma.quiz.findMany({
+            
+            where: {
+                userId: user.id,
+                takenCount:{
+                    gte:1
+                }
+            }
+            , include: {
+                fillInTheBlankQuiz: {
+                    select: {
+                        _count: {
+                            select: {
+                                fillInTheBlankQuestions: true
+                            }
+                        }
+                    }
+                },
+                multipleChoiceQuiz: {
+                    select: {
+                        _count: {
+                            select: {
+                                MultipleChoiceQuestions: true
+                            }
+                        }
+                    }
+                },
+            },
+            take: 5,
+            orderBy: [
+                {
+                    updatedAt: 'desc'
+                }
+            ]
+            
+
+        })
+        return quizes
+    }
+    getMostUnsuccessfulQuizes = async (user: TUser) => {
+        const quizes = await prisma.quiz.findMany({
+            
+            where: {
+                userId: user.id,
+   
+            }
+            , include: {
+                fillInTheBlankQuiz: {
+                    select: {
+                        _count: {
+                            select: {
+                                fillInTheBlankQuestions: true
+                            }
+                        }
+                    }
+                },
+                multipleChoiceQuiz: {
+                    select: {
+                        _count: {
+                            select: {
+                                MultipleChoiceQuestions: true
+                            }
+                        }
+                    }
+                },
+            },
+            take: 5,
+            orderBy: [
+                {
+                    successRate: 'asc'
+                }
+            ]
+            
+
+        })
+        return quizes
+    }
+
+    quizesPaging = async (data: TQuizesPagingReq,user:TUser) => {
         const quizes = await prisma.quiz.findMany({
             where: {
-                userId: data.userId,
+                userId: user.id,
                 id: data.globalSearch ? parseInt(data.globalSearch) : undefined,
                 title: {
                     contains: data.title || undefined
                 },
+                type: data.type as QuestionType || undefined,
                 quizSet: {
                     every: {
                         id: {

@@ -14,6 +14,7 @@ import QuizSet from '@/pages/QuizSet';
 import Quiz from '@/pages/Quiz'
 import EditQuiz from '@/pages/EditQuiz';
 import Search from '@/pages/Search';
+import Profile from '@/pages/Profile';
 interface IindexProps {
     children?: React.ReactNode | React.ReactNode[];
 }
@@ -27,8 +28,8 @@ const index = ({ }: IindexProps) => {
 
             <Route path="/" element={<RootLayOut />} >
                 <Route index element={<Home />} />
-                <Route path='about' element={<div>about</div>} />
-                <Route path='search' element={<Search/>} />
+                <Route path='profile' element={<Profile />} />
+                <Route path='search' element={<Search />} />
 
                 <Route path='create-quiz' element={<CreateQuiz />} />
                 <Route path='quiz-set/:id' element={<QuizSet />} />
@@ -38,8 +39,8 @@ const index = ({ }: IindexProps) => {
 
                 //!this is not true
                 <Route path='quiz/:id' Component={(props) => {
-                    const {state}=useLocation();
-                    return <Quiz key={state?.remount?Math.random(): 'quiz'} />
+                    const { state } = useLocation();
+                    return <Quiz key={state?.remount ? Math.random() : 'quiz'} />
                 }} />
 
                 <Route path="posts" element={<Posts />}>
@@ -53,6 +54,7 @@ const index = ({ }: IindexProps) => {
                 <Route path='register' element={<Register />} />
             </Route>
             <Route path="*" element={<NoMatch />} />
+
         </Routes>
     )
 }

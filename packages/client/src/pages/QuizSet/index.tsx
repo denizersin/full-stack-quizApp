@@ -124,7 +124,7 @@ const index = ({ }: IindexProps) => {
 
     useEffect(() => {
         if (!isEditTitle) setNewTitle(quizSet?.title ?? "")
-    }, [isEditTitle])
+    }, [isEditTitle, quizSet?.title])
 
 
     const onSucessAddOrRemove = () => {
@@ -262,7 +262,7 @@ const index = ({ }: IindexProps) => {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete your quiz
+                            This action cannot be undone. This will permanently delete your quiz set
                             and remove your data from our servers.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

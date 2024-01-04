@@ -16,16 +16,16 @@ type TgetQuizSetById = Prisma.QuizSetGetPayload<
         }
     }>
 
-     const quizSetPagingReqSchema = z.object({
-        limit: z.number(),
-        userId: z.string().optional(),
-        sortField: z.string().optional(),
-        sortOrder: z.string().optional(),
-        globalSearch: z.string().optional(),
-        cursor: z.number().nullish(), // <-- "cursor" needs to exist, but can be any type
-    })
-    
-    export type TQuizSetPagingReq = z.infer<typeof quizSetPagingReqSchema>
+const quizSetPagingReqSchema = z.object({
+    limit: z.number(),
+    userId: z.string().optional(),
+    sortField: z.string().optional(),
+    sortOrder: z.string().optional(),
+    globalSearch: z.string().optional(),
+    cursor: z.number().nullish(), // <-- "cursor" needs to exist, but can be any type
+})
+
+export type TQuizSetPagingReq = z.infer<typeof quizSetPagingReqSchema>
 
 export const quizSetRouter = createTrpcRouter({
 
@@ -47,7 +47,7 @@ export const quizSetRouter = createTrpcRouter({
         .input(quizSetPagingReqSchema)
         .query(async ({ ctx, ...rest }) => {
             const { QuizSetModel } = ctx.Models
-            const data = await QuizSetModel.quizSetPaging(rest.input)
+            const data = await QuizSetModel.quizSetPaging(rest.input, ctx.user)
             return data as {
                 quizSets: QuizSet[],
                 next: QuizSet | null

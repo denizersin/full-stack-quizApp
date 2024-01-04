@@ -9,9 +9,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Avatar from './Avatar';
 import { Bell, Moon, Sun } from 'lucide-react';
-import { useLogOutMutation } from '@/Hooks/useAuth';
+import { useLogOutMutation, useSession } from '@/Hooks/useAuth';
 import { Button } from './ui/button';
 import { useTheme } from './Providers/ThemeProvider';
+import { useNavigate } from 'react-router-dom';
 interface ITopBarProps {
     children?: React.ReactNode | React.ReactNode[];
 }
@@ -19,9 +20,14 @@ interface ITopBarProps {
 const TopBar = ({ }: ITopBarProps) => {
 
 
+    const navigate = useNavigate();
+
     const { mutate: logOut, isLoading: isLogginOut } = useLogOutMutation()
 
     const { setTheme } = useTheme()
+
+    const session = useSession();
+
 
     return (
         <div about='component' className=' flex justify-end gap-2 mt-2' >
@@ -34,9 +40,9 @@ const TopBar = ({ }: ITopBarProps) => {
                     <Avatar className='w-8 h-8' />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className='mr-4'>
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuLabel>{session?.user?.name+' '+session?.user?.surname}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                    <DropdownMenuItem className='cursor-pointer' onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
                     <DropdownMenuItem>Billing</DropdownMenuItem>
                     <DropdownMenuItem>Subscription</DropdownMenuItem>
                     <DropdownMenuItem className='cursor-pointer'

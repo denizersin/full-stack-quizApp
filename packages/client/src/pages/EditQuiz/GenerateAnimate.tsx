@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 
 interface IGenerateAnimateProps {
     children?: React.ReactNode | React.ReactNode[];
-    key: number,
+    key?: number,
     animateInitial: boolean,
-    text: string
+    text: string,
+    refreshKey: number
 }
 
 
@@ -13,7 +14,8 @@ const WORD_DURATION = 20;
 const GenerateAnimate = ({
     key,
     animateInitial,
-    text
+    text,
+    refreshKey
 }: IGenerateAnimateProps) => {
 
     const [isAnimating, setIsAnimating] = useState(animateInitial)
@@ -24,12 +26,13 @@ const GenerateAnimate = ({
     const isFirstRender = firstRender.current === true
 
 
-
     useEffect(() => {
-        if (isFirstRender) return
-        setIsAnimating(true)
+        console.log(firstRender, 'firstRender');
+        if (!animateInitial && isFirstRender) return;
 
-    }, [key])
+        setIsAnimating(true)
+        setCurrText('')
+    }, [refreshKey])
 
     useEffect(() => {
 
@@ -53,7 +56,10 @@ const GenerateAnimate = ({
     return (
         //@ts-ignore
         <span ref={firstRender}>
-            {currText}
+            {
+                isAnimating ? currText : text
+            }
+
         </span>
     )
 }

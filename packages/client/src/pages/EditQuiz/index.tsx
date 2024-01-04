@@ -25,12 +25,14 @@ interface IEditQuizProps {
 const EditQuiz = ({ }: IEditQuizProps) => {
     const location = useLocation()
     const initialData = location?.state?.quiz
+    console.log(initialData, 'qwewqeinitial');
     const params = useParams()
     const id = Number(params?.id)
 
+    const [regeneratedQuestId, setregeneratedQuestId] = useState<number>(-1)
+
     const queryClient = useQueryClient()
 
-    console.log('***HERERER');
     const { data: quizData, refetch } = trpc.quiz.getQuiz.useQuery(id, {
         initialData
     })
@@ -42,16 +44,16 @@ const EditQuiz = ({ }: IEditQuizProps) => {
             // refetch();
             setMap({
                 ...map,
-                [id]: map[id] ? map[id] + 1 : 1
+                [regeneratedQuestId]: map[regeneratedQuestId] ? map[regeneratedQuestId] + 31 : 1
             })
         }
     })
-
 
     const onRegenerate = (id: number) => {
         regenerateQuest({
             questId: id
         })
+        setregeneratedQuestId(id)
 
     }
 
@@ -69,6 +71,9 @@ const EditQuiz = ({ }: IEditQuizProps) => {
     })
     console.log(quizData, 'qwe');
 
+    console.log(map);
+
+    console.log(regeneratedQuestId, 'regeneratedQuestId');
 
     return (
         <div about='component' className=' pb-10 ' >
@@ -77,13 +82,12 @@ const EditQuiz = ({ }: IEditQuizProps) => {
                 {
                     quizData?.multipleChoiceQuiz?.MultipleChoiceQuestions?.map((question, index) => {
 
-                        const key = map[question.id] ? map[question.id] : 0
-
+                        const key = map[question.id]
                         return <Card >
                             <CardHeader className='flex flex-row justify-between'>
                                 <CardTitle>  {(index + 1) + ') '}
                                     {question.question}
-                                    <GenerateAnimate animateInitial={initialData} text={question.question} key={key} />
+                                    <GenerateAnimate animateInitial={initialData} text={question.question} refreshKey={key} />
                                 </CardTitle>
                                 <Button onClick={() => onRegenerate(question.id)} variant={'outline'} className='!mt-0 text-sm px-1'>Re generate <Bot className='ml-1' /></Button>
                             </CardHeader>
@@ -96,7 +100,7 @@ const EditQuiz = ({ }: IEditQuizProps) => {
                                                 })}>
                                                 <div className="w-[2rem] h-[2rem] shrink-0  rounded-full border flex justify-center items-center">{MultiOptionIndexEnum2[index]}</div>
                                                 <div className="option  px-2">
-                                                    <GenerateAnimate animateInitial={initialData} text={option.value} key={key} />
+                                                    <GenerateAnimate animateInitial={initialData} text={option.value} refreshKey={key} />
                                                 </div>
                                             </div>
                                         )

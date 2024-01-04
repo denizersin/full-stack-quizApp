@@ -1,14 +1,23 @@
 import { trpc } from '@/lib/trpc';
 import React from 'react'
-
+import { User } from "@prisma/client"
 interface ISessionProviderProps {
     children?: React.ReactNode | React.ReactNode[];
 }
-
+type U = {
+    createdAt: string;
+    updatedAt: string;
+    id: string;
+    email: string;
+    name: string;
+    surname: string;
+    birthDate: string;
+    identityNo: string;
+}
 export const SessionContext = React.createContext<{
     isLoading: boolean;
     isFetching: boolean;
-    user: any;
+    user: U | undefined | null
 } | null>(null);
 
 const SessionProvider = ({

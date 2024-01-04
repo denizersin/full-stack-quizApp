@@ -75,9 +75,8 @@ const SideLibrary = ({ }: ISideLibraryProps) => {
     }
 
 
+    const hasNextPage = newQuizList?.pages[newQuizList.pages.length - 1]?.next
     const fetchNextPage2 = () => {
-        const hasNextPage = newQuizList?.pages[newQuizList.pages.length - 1]?.next
-
         if (!hasNextPage) return;
 
         fetchNextPage()
@@ -146,7 +145,10 @@ const SideLibrary = ({ }: ISideLibraryProps) => {
 
             </ScrollArea>
             <div className='  flex w-full  pr-7 mt-2'>
-                <Button className='w-full rounded-none' onClick={fetchNextPage2} variant={'outline'}>Load More</Button>
+                {
+
+                    hasNextPage && <Button className='w-full rounded-none' onClick={fetchNextPage2} variant={'outline'}>Load More</Button>
+                }
             </div>
 
         </div>

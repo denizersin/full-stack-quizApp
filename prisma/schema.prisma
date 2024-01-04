@@ -14,6 +14,9 @@ datasource db {
 model User {
   id            String         @id @default(cuid())
   name          String
+  surname       String
+  birthDate     String
+  identityNo    String         @unique
   email         String         @unique
   password      String
   createdAt     DateTime       @default(now())
@@ -23,7 +26,7 @@ model User {
 
   quizSets QuizSet[]
 
-  @@index([id,email])
+  @@index([id, email])
 }
 
 model RefreshToken {
@@ -51,6 +54,7 @@ model Quiz {
   questionCount      Int
   fillInTheBlankQuiz FillInTheBlankQuiz?
   multipleChoiceQuiz MultipleChoiceQuiz?
+  updatedAt          DateTime            @updatedAt
 
   @@index([userId, title, type])
 }
@@ -91,6 +95,7 @@ model MultipleChoiceQuestion {
   multipleChoiceQuiz   MultipleChoiceQuiz @relation(fields: [multipleChoiceQuizId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   question             String
   optionsList          MultiOption[]      @relation("test")
+
   @@index([multipleChoiceQuizId])
 }
 
@@ -101,6 +106,7 @@ model MultiOption {
   question                 MultipleChoiceQuestion @relation("test", fields: [multipleChoiceQuestionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   opt_index                Int
   isCorrect                Boolean                @default(false)
+
   @@index([multipleChoiceQuestionId])
 }
 
@@ -109,6 +115,7 @@ model FillOption {
   value        String
   fillOptionId Int
   question     FillInTheBlankQuestion?
+
   @@index([fillOptionId])
 }
 

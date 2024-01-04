@@ -10,7 +10,6 @@ export class QuizSetModel {
 
 
     createQuizSet = async (user: TUser) => {
-
         const count = await prisma.quizSet.count()
         return await prisma.quizSet.create({
             data: {
@@ -27,13 +26,14 @@ export class QuizSetModel {
         })
         return quizSets
     }
-    quizSetPaging = async (data: TQuizSetPagingReq) => {
+    quizSetPaging = async (data: TQuizSetPagingReq, user: TUser) => {
 
 
         const quizSets = await prisma.quizSet.findMany({
             where: {
-                userId: data.userId,
+                userId: user.id,
             },
+
             take: data.limit + 1,
             cursor: data.cursor ? {
                 id: data.cursor
@@ -80,7 +80,7 @@ export class QuizSetModel {
                 id: id
             },
             data: {
-                ...data
+                // ...data
             }
         })
     }

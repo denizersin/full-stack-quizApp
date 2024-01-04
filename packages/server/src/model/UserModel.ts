@@ -8,10 +8,7 @@ export class UserModel {
 
         return prisma.user.create({
             data: {
-                // ...user,
-                email: user.email,
-                password: user.password,
-                name: user.name,
+                ...user
             }
         })
 
@@ -19,28 +16,50 @@ export class UserModel {
 
 
 
-    findUserByEmail(email:string) {
+    findUserByEmail(email: string) {
         return prisma.user.findUnique({
             where: {
                 email,
             },
         });
     }
+    findUserByIdentityNo(identityNo: string) {
+        return prisma.user.findUnique({
+            where: {
+                identityNo
+            },
+        });
+    }
 
-    createUserByEmailAndPassword(user:TCreateUserReq) : Promise<TUser>{
+    createUserByEmailAndPassword(user: TCreateUserReq): Promise<TUser> {
         user.password = bcrypt.hashSync(user.password, 12);
         return prisma.user.create({
             data: {
                 ...user,
             },
-        }) ;
+        });
     }
 
-    findUserById(id:string) {
+    findUserById(id: string) {
         return prisma.user.findUnique({
             where: {
                 id,
             },
+        });
+    }
+    updateUserById(data: {
+        email?: string,
+        password?: string,
+        id: string
+    }) {
+        if (data.password)
+            data.password = bcrypt.hashSync(data.password, 12);
+
+        return prisma.user.update({
+            where: {
+                id: data.id
+            },
+            data,
         });
     }
 }

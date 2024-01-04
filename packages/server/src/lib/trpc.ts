@@ -9,6 +9,10 @@ import jwt from 'jsonwebtoken'
 import { TUser } from '..';
 import { QuizModel } from '@/model/QuizModel';
 
+import { SOAP_ADRES } from '@/lib/constants';
+const soap = require('soap');
+
+
 
 export const Models: {
   UserModel: UserModel,
@@ -22,6 +26,11 @@ export const Models: {
   QuizModel: new QuizModel()
 }
 
+let SOAP_CLIENT: any = null;
+
+soap.createClient(SOAP_ADRES, (err: any, client: any) => {
+  SOAP_CLIENT = client;
+});
 
 export const createContext = ({
   req,
@@ -32,6 +41,7 @@ export const createContext = ({
 
   return {
     Models: Models,
+    SOAP_CLIENT,
     req,
     res
   }

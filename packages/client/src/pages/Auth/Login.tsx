@@ -19,6 +19,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { getQueryKey } from '@trpc/react-query'
 import Spinner from '@/components/ui/Spinner'
+import { useToast } from '@/components/ui/use-toast'
 
 const formSchema = z.object({
     email: z.string().min(2, {
@@ -35,20 +36,25 @@ export function Login({ }: ILoginProps) {
     // ...
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-
+    const { toast } = useToast()
     const loginMutation = trpc.auth.login.useMutation({
         onSuccess: () => {
             queryClient.invalidateQueries(getQueryKey(trpc.auth.getSession));
             navigate('/')
         },
-        onError: () => {
+        onError: (error) => {
+            toast({
+                variant: "destructive",
+                title: error.message,
+                // action: <ToastAction altText="Try again">Try again</ToastAction>,
+            })
         }
     });
 
 
     const { mutateAsync: login, data, isLoading } = loginMutation;
 
-    
+
 
     console.log(data);
 
@@ -95,7 +101,7 @@ export function Login({ }: ILoginProps) {
                         <FormField
                             control={form.control}
                             name="password"
-                                
+
                             render={({ field }) => (
                                 <FormItem className='space-y-0'>
                                     <FormLabel>Password</FormLabel>
@@ -110,7 +116,7 @@ export function Login({ }: ILoginProps) {
                             )}
                         />
                         <Button type="submit">
-                            Login <Spinner isSpinning={isLoading} className='w-4 h-4 ml-2'/>
+                            Login <Spinner isSpinning={isLoading} className='w-4 h-4 ml-2' />
                         </Button>
                         <Link to='/auth/register' className=' ml-4 text-sm text-gray-500 hover:text-gray-700'>Don't have an account? Register</Link>
                     </form>

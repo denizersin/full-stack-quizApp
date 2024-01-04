@@ -60,7 +60,7 @@ const QuizCard = ({
     const navigate = useNavigate();
 
     return (
-        <Card className='w-64'>
+        <Card className='w-64 dark:border-slate-100 dark:border-[.7px]'>
             <CardHeader className=" flex items-center flex-row justify-between">
 
                 <CardTitle>{title}</CardTitle>

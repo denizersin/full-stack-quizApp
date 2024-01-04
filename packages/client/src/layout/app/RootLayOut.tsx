@@ -30,7 +30,6 @@ const RootLayOut = ({ }: IRootLayOutProps) => {
                     </div>
                 </Card>
 
-                <Toaster />
 
             </div>
         </AuthLayer>

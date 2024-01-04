@@ -7,6 +7,7 @@ import { generateTokens } from '@/lib/utils/jwt'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import cookie from 'cookie'
+import { updateQuizSetReqSchema } from '@/model/validators/quizset';
 
 const protected2 = trpc.procedure.use(isAuth)
 
@@ -20,15 +21,43 @@ export const authRouter = createTrpcRouter({
                 Models: { UserModel, AuthModel },
             } = ctx
 
-            const { email, password, name } = input
+            const { email, password, name, surname, birthDate, identityNo } = input
 
             const existingUser = await UserModel.findUserByEmail(email);
-
+            const existingIdetity = await UserModel.findUserByIdentityNo(identityNo);
             if (existingUser) {
-                // throw new Error('Email already in use.');
+                throw new Error('Email already in use.');
+            }
+            if (existingIdetity) {
+                throw new Error('Identity already in use.');
             }
 
-            const user = await UserModel.createUserByEmailAndPassword({ email, password, name });
+            const isTrue = await new Promise((resolve, reject) => {
+                ctx.SOAP_CLIENT.TCKimlikNoDogrula({
+                    TCKimlikNo: identityNo,
+                    Ad: name,
+                    Soyad: surname,
+                    DogumYili: birthDate
+                }, (err: any, result: any) => {
+                    if (result.TCKimlikNoDogrulaResult) {
+                        console.log("Doğru")
+                        resolve(true)
+                    } else {
+                        console.log("Yanliş")
+                        resolve(false)
+                    }
+                });
+            })
+
+            if (!isTrue) {
+                throw new TRPCError({
+                    code: "PARSE_ERROR",
+                    message: 'Wrong  identity ',
+                })
+            }
+
+
+            const user = await UserModel.createUserByEmailAndPassword({ email, password, name, surname, birthDate, identityNo });
             const jti = uuidv4();
             const { accessToken, refreshToken } = generateTokens(user, jti);
             await AuthModel.addRefreshTokenToWhitelist({ jti, refreshToken, userId: user.id });
@@ -37,7 +66,7 @@ export const authRouter = createTrpcRouter({
                 httpOnly: true, secure: true, sameSite: 'none',
                 maxAge: 1000 * 60 * 60 * 8 // 8 hours
             })
-            
+
             return user
 
         })
@@ -55,8 +84,8 @@ export const authRouter = createTrpcRouter({
 
             if (!user) {
                 throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'You are not authorized',
+                    code: "NOT_IMPLEMENTED",
+                    message: 'Email not found',
                 })
             }
 
@@ -64,8 +93,8 @@ export const authRouter = createTrpcRouter({
 
             if (!isPasswordValid) {
                 throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: 'You are not authorized',
+                    code:"NOT_FOUND",
+                    message: 'Wrong Password',
                 })
             }
 
@@ -78,6 +107,7 @@ export const authRouter = createTrpcRouter({
                 maxAge: 1000 * 60 * 60 * 8 // 8 hours
             })
         }),
+
 
     getSession: trpc.procedure
         .query(async ({ ctx, input }) => {
@@ -100,7 +130,10 @@ export const authRouter = createTrpcRouter({
 
             const user = await UserModel.findUserById(payload.userId);
 
-            if (user) return user
+            if (user) {
+                user.identityNo = user.identityNo.slice(0, 3) + "*****" + user.identityNo.slice(8, 11)
+                return user
+            }
 
             return null
 

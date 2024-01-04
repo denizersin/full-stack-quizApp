@@ -3,6 +3,7 @@ import { TRPCClientError, TRPCClientErrorBase, httpBatchLink } from '@trpc/clien
 import React, { useState } from 'react'
 import { trpc } from '@/lib/trpc'
 import { useNavigate } from 'react-router-dom'
+import { useToast } from '../ui/use-toast'
 interface ITrpcProvider {
     children?: React.ReactNode | React.ReactNode[];
 
@@ -12,6 +13,7 @@ function TrpcProvider
     ({ children }: ITrpcProvider) {
 
     const navigation = useNavigate();
+    const { toast } = useToast()
 
     const [queryClient] = useState(() => new QueryClient({
         defaultOptions: {
@@ -20,13 +22,24 @@ function TrpcProvider
                     if (error?.data?.httpStatus === 401) {
                         navigation('/auth')
                     }
+                    toast({
+                        variant: "destructive",
+                        title: error.message,
+                        // action: <ToastAction altText="Try again">Try again</ToastAction>,
+                    })
                 },
+
             },
             queries: {
                 onError: (error: any) => {
                     if (error?.data?.httpStatus === 401) {
                         navigation('/auth')
                     }
+                    toast({
+                        variant: "destructive",
+                        title: error.message,
+                        // action: <ToastAction altText="Try again">Try again</ToastAction>,
+                    })
                 },
             }
         }
